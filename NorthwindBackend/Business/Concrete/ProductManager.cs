@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Business.Abstract;
+using Business.Constants;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concrete;
@@ -37,19 +38,19 @@ namespace Business.Concrete
         {
             // Business rules
             _productDal.Add(product);
-            return new SuccessResult("Product added successfully");
+            return new SuccessResult(Messages.ProductAdded);
         }
 
         public IResult Delete(Product product)
         {
             _productDal.Delete(product);
-            return new SuccessResult("Product deleted successfully");
+            return new SuccessResult(Messages.ProductDeleted);
         }
 
         public IResult Update(Product product)
         {
             _productDal.Update(product);
-            return new SuccessResult("Product updated successfully");
+            return new SuccessResult(Messages.ProductUpdated);
         }
     }
 }
