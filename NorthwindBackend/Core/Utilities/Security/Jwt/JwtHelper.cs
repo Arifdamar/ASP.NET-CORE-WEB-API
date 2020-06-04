@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using Core.Entities.Concrete;
+using Core.Extensions;
 using Core.Utilities.Security.Encryption;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -27,6 +29,7 @@ namespace Core.Utilities.Security.Jwt
         {
             var securityKey = SecurityKeyHelper.CreateSecurityKey(_tokenOptions.SecurityKey);
             var signingCredentials = SigningCredentialsHelper.CreateSigningCredentials(securityKey);
+
         }
 
         public JwtSecurityToken CreateJwtSecurityToken(TokenOptions tokenOptions, User user, SigningCredentials signingCredentials, List<OperationClaim> operationClaims)
@@ -36,15 +39,22 @@ namespace Core.Utilities.Security.Jwt
                 audience: tokenOptions.Audience,
                 expires: _accessTokenExpiration,
                 notBefore: DateTime.Now,
-                claims: operationClaims,
+                claims: SetClaims(user, operationClaims),
                 signingCredentials: signingCredentials
                 );
+            return jwt;
         }
 
-        private IEnumerable<Claim> SetClaims(User user, List<OperationClaim>)
+        private IEnumerable<Claim> SetClaims(User user, List<OperationClaim> operationClaims)
         {
             var claims = new List<Claim>();
-            claims.Add(new Claim("email", user.Email));
+            claims.AddEmail(user.Email);
+            claims.AddName(user.FirstName + " " + user.LastName);
+            claims.AddNameIdentifier(user.Id.ToString());
+            claims.AddRoles(operationClaims.Select(claim => claim.Name).ToArray());
+            return claims;
         }
+
+
     }
 }
