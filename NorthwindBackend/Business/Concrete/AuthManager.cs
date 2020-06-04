@@ -22,9 +22,22 @@ namespace Business.Concrete
             _tokenHelper = tokenHelper;
         }
 
-        public IDataResult<User> Register(UserForRegiterDto userForRegiterDto, string password)
+        public IDataResult<User> Register(UserForRegiterDto userForRegisterDto, string password)
         {
-            throw new NotImplementedException();
+            HashingHelper.CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
+
+            var user = new User()
+            {
+                FirstName = userForRegisterDto.FirstName,
+                Email = userForRegisterDto.Email,
+                LastName = userForRegisterDto.LastName,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
+                Status = true
+            };
+            _userService.Add(user);
+
+            return new SuccessDataResult<User>(user, Messages.UserRegistered);
         }
 
         public IDataResult<User> Login(UserForLoginDto userForLoginDto)
